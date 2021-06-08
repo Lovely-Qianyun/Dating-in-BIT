@@ -13,4 +13,19 @@ public static class UserData
     public static string Hobby;
     public static string Remarks;
     public static Texture2D UserImage;
+
+    public static void Clear()
+    {
+        UserName = "";
+        PassWord = "";
+        Name = "";
+        SchoolNumber = "";
+        Gender = "";
+        College = "";
+        Profession = "";
+        Birthday = "";
+        Hobby = "";
+        Remarks = "";
+        UserImage = null;
+    }
 }

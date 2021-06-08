@@ -9,10 +9,12 @@ public class Manager : MonoBehaviour
     private GameObject RegisterPage;
     private GameObject MainPage;
     private GameObject Tip_Panel;
+    public static GameObject Cover;
 
     private void Awake()
     {
         Instance = this;
+        Cover = this.transform.GetChild(4).gameObject;
         //登录页面
         LogInPage = this.transform.GetChild(0).gameObject;
         LogInPage.AddComponent<LogInManager>();
@@ -25,7 +27,7 @@ public class Manager : MonoBehaviour
         RegisterPage.AddComponent<RegisterManager>();
         RegisterPage.SetActive(false);
         //主页面
-        MainPage = this.transform.GetChild(1).gameObject;
+        MainPage = this.transform.GetChild(2).gameObject;
         MainPage.AddComponent<MainManager>();
         MainPage.SetActive(false);
     }
@@ -50,13 +52,13 @@ public class Manager : MonoBehaviour
         LogInPage.SetActive(false);
         RegisterPage.SetActive(true);
     }
-    public void ShowTipPanel(string str)
+    public void ShowTipPanel(string str,int time = 3)
     {
         //显示
         Tip_Panel.transform.GetChild(0).GetComponent<Text>().text = str;
         Tip_Panel.SetActive(true);
         //3秒后隐藏
-        Invoke("hiddenTipPanel", 3);
+        Invoke("hiddenTipPanel", time);
     }
     void hiddenTipPanel()
     {

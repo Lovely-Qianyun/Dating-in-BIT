@@ -4,13 +4,13 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 //Server.Instance调用
-public class Server : MonoBehaviour
+public class Server
 {
     public static Server Instance = new Server();
 
-    string MyIpAddress = "127.0.0.1/Dating_BIT/";
+    string MyIpAddress = "10.171.213.101/Dating_BIT/";
     //连接服务器，返回登录匹配结果值:true,false,error,字符串
-    IEnumerator IGetLogInData(string SchoolNumber, string PassWord)
+    public IEnumerator IGetLogInData(string SchoolNumber, string PassWord)
     {
 
         UnityWebRequest uwr = UnityWebRequest.Get("http://" + MyIpAddress +
@@ -19,6 +19,8 @@ public class Server : MonoBehaviour
         yield return uwr.SendWebRequest();
         if (uwr.isNetworkError || uwr.isHttpError)
         {
+            LogInManager.result = "NETERROR";
+            LogInManager.isOver = true;
             yield return null;
         }
         //判断是否正确，或者用变量接收返回的数据
@@ -26,11 +28,12 @@ public class Server : MonoBehaviour
         //返回为"true"，则正确
         //返回为 "false"，则错误
         //返回为"error"，则不存在
-        string result = uwr.downloadHandler.text;
+        LogInManager.isOver = true;
+        LogInManager.result = uwr.downloadHandler.text;
     }
 
     //连接服务器，返回注册匹配结果值:true,false字符串
-    IEnumerator IGetRegister(string SchoolNumber, string Name)
+    public IEnumerator IGetRegister(string SchoolNumber, string Name)
     {
         UnityWebRequest uwr = UnityWebRequest.Get("http://" + MyIpAddress +
             "GetRegister.php?schoolnumber=" + SchoolNumber
@@ -38,30 +41,34 @@ public class Server : MonoBehaviour
         yield return uwr.SendWebRequest();
         if (uwr.isNetworkError || uwr.isHttpError)
         {
+            RegisterManager.result = "NETERROR";
+            RegisterManager.isOver = true;
             yield return null;
         }
         //判断是否正确，或者用变量接收返回的数据
         //uwr.downloadHandler.text
         //返回为"true"，可以注册，然后将数据存入数据库
         //返回为 "false"，已被注册，错误
-        string result = uwr.downloadHandler.text;
+        RegisterManager.result = uwr.downloadHandler.text;
+        RegisterManager.isOver = true;
     }
-    
+
     //连接服务器，将注册数据上传至数据库
     //需先将数据处理为WWWForm形式
-    IEnumerator IPostRegister(WWWForm wwwform)
+    public IEnumerator IPostRegister(WWWForm wwwform)
     {
         UnityWebRequest uwr = UnityWebRequest.Post("http://" + MyIpAddress +
             "PostRegister.php",wwwform);
         yield return uwr.SendWebRequest();
-
+        RegisterManager.result = uwr.downloadHandler.text;
+        RegisterManager.isOver = true;
     }
-    
+
     //连接服务器，返回用户所有数据,存入UserData脚本
-    IEnumerator IGetUserData(string SchoolNumber)
+    public IEnumerator IGetUserData(string SchoolNumber)
     {
         UnityWebRequest uwr = UnityWebRequest.Get("http://" + MyIpAddress +
-            "GetUserData.php");
+            "GetUserData.php?schoolnumber=" + SchoolNumber);
         yield return uwr.SendWebRequest();
         if (uwr.isNetworkError || uwr.isHttpError)
         {
@@ -78,31 +85,37 @@ public class Server : MonoBehaviour
         UserData.Birthday = result[7];
         UserData.Hobby = result[8];
         UserData.Remarks = result[9];
-        uwr = UnityWebRequestTexture.GetTexture("http://" + MyIpAddress + "userimage.png");
+        uwr = UnityWebRequestTexture.GetTexture("http://" + MyIpAddress + "userimages/" + UserData.SchoolNumber + "userimage.png");
         yield return uwr.SendWebRequest();
         if (uwr.isNetworkError || uwr.isHttpError)
         {
             yield return null;
         }
         UserData.UserImage = DownloadHandlerTexture.GetContent(uwr);
+        LogInManager.isOver = true;
     }
-    //连接服务器，返回用户所有数据,存入UserData脚本
-    IEnumerator IPostUserData(WWWForm wwwform)
+    //连接服务器，上传用户所有数据,不包括图片
+    public IEnumerator IPostUserData(WWWForm wwwform)
     {
         UnityWebRequest uwr = UnityWebRequest.Post("http://" + MyIpAddress +
             "PostUserData.php",wwwform);
         yield return uwr.SendWebRequest();
-        if (uwr.isNetworkError || uwr.isHttpError)
+        if (uwr.isNetworkError || uwr.isHttpError || !uwr.downloadHandler.text.Equals("true"))
         {
+            InformationPanel.result = false;
+            InformationPanel.isOver = true;
             yield return null;
         }
+        InformationPanel.result = true;
+        InformationPanel.isOver = true;
+        //Debug.Log(uwr.downloadHandler.text);
     }
 
     //上传用户图片
-    IEnumerator IPostUserImage(WWWForm wwwform)
+    public IEnumerator IPostUserImage(WWWForm wwwform)
     {
         UnityWebRequest uwr = UnityWebRequest.Post("http://" + MyIpAddress
-            + "postUserName.php",wwwform);
+            + "postUserImage.php",wwwform);
         yield return uwr.SendWebRequest();
         if (uwr.isNetworkError || uwr.isHttpError)
         {

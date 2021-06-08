@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class OwnManager : MonoBehaviour
@@ -8,7 +6,7 @@ public class OwnManager : MonoBehaviour
     private static Image UserImage;
     private static Text UserName;
     private static Transform Buttonmanager;
-    private static Transform InformationPanel;
+    public static Transform InformationPanel;
 
     private void Awake()
     {
@@ -29,7 +27,9 @@ public class OwnManager : MonoBehaviour
     //加载用户头像图片、用户名
     private void ShowUser()
     {
-        
+        Texture2D tex = UserData.UserImage;
+        UserImage.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+        UserName.text = UserData.UserName;
     }
 
 }
